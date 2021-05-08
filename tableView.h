@@ -10,7 +10,11 @@ class TableView : public QTableView
 
 public:
     TableView(QWidget *parent = nullptr);
-protected:
+	void previousPage();		
+	void nextPage();
+	void setCurPage(int page);
+	int getCurPage();
+	int getTotalPage();
 private:		
 	void initModel();
 private:

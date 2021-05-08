@@ -37,7 +37,7 @@ static bool createConnection()
     query.exec("insert into person values(103, 'Lars', 'Gordon')");
     query.exec("insert into person values(104, 'Roberto', 'Robitaille')");
     query.exec("insert into person values(105, 'Maria', 'Papadopoulos')");
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1000*1000; ++i) {
         query.exec(QString("insert into person values(%1, 'Roberto%2', 'Robitaille%3')").arg(105+i).arg(i).arg(i));
     }
     query.exec("create table items (id int primary key,"

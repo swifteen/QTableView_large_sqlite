@@ -16,6 +16,11 @@ TableModel::TableModel(QObject *parent):QSqlTableModel(parent)
     setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
     setHeaderData(1, Qt::Horizontal, QObject::tr("First name"));
     setHeaderData(2, Qt::Horizontal, QObject::tr("Last name"));
+
+    beginResetModel();
+    m_iRecordTotal = queryRecordSize();
+    fileCount = 0;
+    endResetModel();
 }
 
 int TableModel::queryRecordSize() const
@@ -80,6 +85,26 @@ void TableModel::nextPage()
     }
 }
 
+void TableModel::setCurPage(int page)
+{
+	if((0 <= page) && (page < m_iTotalPageNum))
+    {
+        m_iCurPageIndex = page;
+        select();
+    }
+}
+
+int TableModel::getCurPage()
+{
+	return m_iCurPageIndex;
+}
+
+int TableModel::getTotalPage()
+{
+	return m_iTotalPageNum;
+}
+
+
 //把sql语句加工一下，根据页数最多只显示TABLE_MAX_ROW条记录
 QString TableModel::selectStatement() const
 {
@@ -122,4 +147,58 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
 
     return QSqlTableModel::headerData(section,orientation,role);
 }
+
+#if 0
+int TableModel::rowCount(const QModelIndex & /* parent */) const
+{
+    return fileCount;
+}
+
+QVariant TableModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    if (index.row() >= m_iRecordTotal || index.row() < 0)
+        return QVariant();
+
+//    if (role == Qt::BackgroundRole) {
+//        int batch = (index.row() / 100) % 2;
+//        if (batch == 0)
+//            return qApp->palette().base();
+//        else
+//            return qApp->palette().alternateBase();
+//    }
+    return QSqlTableModel::data(index,role);
+}
+
+bool TableModel::canFetchMore(const QModelIndex & /* index */) const
+{
+	qDebug()<<__FILE__<<__FUNCTION__<<__LINE__<<fileCount;
+    if (fileCount < m_iRecordTotal)
+        return true;
+    else
+        return false;
+}
+//![1]
+
+//![2]
+void TableModel::fetchMore(const QModelIndex & /* index */)
+{
+    int remainder = m_iRecordTotal - fileCount;
+    int itemsToFetch = qMin(100, remainder);
+
+    if (itemsToFetch <= 0)
+        return;
+
+    beginInsertRows(QModelIndex(), fileCount, fileCount+itemsToFetch-1);
+
+    fileCount += itemsToFetch;
+
+    endInsertRows();
+	qDebug()<<__FILE__<<__FUNCTION__<<__LINE__<<itemsToFetch<<fileCount;
+
+//    emit numberPopulated(itemsToFetch);
+}
+#endif
 
